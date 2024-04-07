@@ -10,15 +10,9 @@ public class CountriesController(PostgresDbContext context) : Controller
     // GET: Countries
     public async Task<IActionResult> Index()
     {
-        var countries = await context.Countries.Select(c => new Country
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Code = c.Code,
-            CreatedAt = c.CreatedAt,
-            UpdatedAt = c.UpdatedAt,
-            DeletedAt = c.DeletedAt
-        }).ToListAsync();
+        var countries = await context.Countries
+            .Where(c => c.DeletedAt == null)
+            .ToListAsync();
         
         countries.Sort((a, b) => a.Id.CompareTo(b.Id));
 
@@ -34,6 +28,7 @@ public class CountriesController(PostgresDbContext context) : Controller
         }
 
         var country = await context.Countries
+            .Where(c=> c.DeletedAt == null)
             .Select(c => new Country
             {
                 Id = c.Id,
@@ -82,7 +77,7 @@ public class CountriesController(PostgresDbContext context) : Controller
             return NotFound();
         }
 
-        var country = await context.Countries.FirstOrDefaultAsync(x => x.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
         if (country == null)
         {
             return NotFound();
@@ -96,7 +91,7 @@ public class CountriesController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Code,CreatedAt,UpdatedAt,DeletedAt")] Country country)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || !CountryExists(id))
         {
             return View(country);
         }
@@ -129,7 +124,7 @@ public class CountriesController(PostgresDbContext context) : Controller
             return NotFound();
         }
 
-        var country = await context.Countries.FirstOrDefaultAsync(m => m.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
         if (country == null)
         {
             return NotFound();
@@ -143,7 +138,7 @@ public class CountriesController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var country = await context.Countries.FirstOrDefaultAsync(x => x.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
         if (country == null)
         {
@@ -159,6 +154,6 @@ public class CountriesController(PostgresDbContext context) : Controller
 
     private bool CountryExists(int id)
     {
-        return context.Countries.Any(e => e.Id == id);
+        return context.Countries.Any(e => e.Id == id && e.DeletedAt == null);
     }
 }

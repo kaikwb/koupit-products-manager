@@ -10,7 +10,10 @@ public class ManufacturersController(PostgresDbContext context) : Controller
     // GET: Manufacturers
     public async Task<IActionResult> Index()
     {
-        var manufacturers = await context.Manufacturers.Include(m => m.Country).ToListAsync();
+        var manufacturers = await context.Manufacturers
+            .Where(m => m.DeletedAt == null)
+            .Include(m => m.Country)
+            .ToListAsync();
         manufacturers.Sort((a, b) => a.Id.CompareTo(b.Id));
 
         return View(manufacturers);
@@ -26,7 +29,7 @@ public class ManufacturersController(PostgresDbContext context) : Controller
 
         var manufacturer = await context.Manufacturers
             .Include(m => m.Country)
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
 
         if (manufacturer == null)
         {
@@ -39,8 +42,8 @@ public class ManufacturersController(PostgresDbContext context) : Controller
     // GET: Manufacturers/Create
     public IActionResult Create()
     {
-        var countries = context.Countries.ToList();
-        countries.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
+        var countries = context.Countries.Where(c => c.DeletedAt == null).ToList();
+        countries.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.InvariantCultureIgnoreCase));
         ViewBag.Countries = countries;
 
         return View();
@@ -51,7 +54,8 @@ public class ManufacturersController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Name,CountryId")] Manufacturer manufacturer)
     {
-        var country = await context.Countries.FindAsync(manufacturer.CountryId);
+        var country =
+            await context.Countries.FirstOrDefaultAsync(c => c.Id == manufacturer.CountryId && c.DeletedAt == null);
         manufacturer.Country = country!;
 
         ModelState.Clear();
@@ -79,7 +83,7 @@ public class ManufacturersController(PostgresDbContext context) : Controller
         }
 
         var manufacturer = await context.Manufacturers.FindAsync(id);
-        if (manufacturer == null)
+        if (manufacturer == null || manufacturer.DeletedAt != null)
         {
             return NotFound();
         }
@@ -94,12 +98,13 @@ public class ManufacturersController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Uuid,Name,CountryId,CreatedAt")] Manufacturer manufacturer)
     {
-        if (id != manufacturer.Id)
+        if (id != manufacturer.Id || !ManufacturerExists(id))
         {
             return NotFound();
         }
 
-        var country = await context.Countries.FindAsync(manufacturer.CountryId);
+        var country =
+            await context.Countries.FirstOrDefaultAsync(c => c.Id == manufacturer.CountryId && c.DeletedAt == null);
         manufacturer.Country = country!;
 
         ModelState.Clear();
@@ -139,7 +144,7 @@ public class ManufacturersController(PostgresDbContext context) : Controller
         }
 
         var manufacturer = await context.Manufacturers
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
 
         if (manufacturer == null)
         {
@@ -154,16 +159,16 @@ public class ManufacturersController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var manufacturer = await context.Manufacturers.FindAsync(id);
+        var manufacturer = await context.Manufacturers.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
 
         if (manufacturer == null)
         {
             return NotFound();
         }
-        
+
         manufacturer.UpdatedAt = DateTimeOffset.UtcNow;
         manufacturer.DeletedAt = DateTimeOffset.UtcNow;
-        
+
         context.Update(manufacturer);
         await context.SaveChangesAsync();
 
@@ -172,6 +177,6 @@ public class ManufacturersController(PostgresDbContext context) : Controller
 
     private bool ManufacturerExists(int id)
     {
-        return context.Manufacturers.Any(e => e.Id == id);
+        return context.Manufacturers.Any(e => e.Id == id && e.DeletedAt == null);
     }
 }
