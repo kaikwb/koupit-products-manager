@@ -5,19 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace koupit_products_manager.Controllers;
 
-public class ManufacturersController : Controller
+public class ManufacturersController(PostgresDbContext context) : Controller
 {
-    private readonly PostgresDbContext _context;
-
-    public ManufacturersController(PostgresDbContext context)
-    {
-        _context = context;
-    }
-
     // GET: Manufacturers
     public async Task<IActionResult> Index()
     {
-        var manufacturers = await _context.Manufacturers.Include(m => m.Country).ToListAsync();
+        var manufacturers = await context.Manufacturers.Include(m => m.Country).ToListAsync();
         manufacturers.Sort((a, b) => a.Id.CompareTo(b.Id));
 
         return View(manufacturers);
@@ -31,7 +24,7 @@ public class ManufacturersController : Controller
             return NotFound();
         }
 
-        var manufacturer = await _context.Manufacturers
+        var manufacturer = await context.Manufacturers
             .Include(m => m.Country)
             .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -46,7 +39,7 @@ public class ManufacturersController : Controller
     // GET: Manufacturers/Create
     public IActionResult Create()
     {
-        var countries = _context.Countries.ToList();
+        var countries = context.Countries.ToList();
         countries.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         ViewBag.Countries = countries;
 
@@ -58,7 +51,7 @@ public class ManufacturersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Name,CountryId")] Manufacturer manufacturer)
     {
-        var country = await _context.Countries.FindAsync(manufacturer.CountryId);
+        var country = await context.Countries.FindAsync(manufacturer.CountryId);
         manufacturer.Country = country!;
 
         ModelState.Clear();
@@ -66,13 +59,13 @@ public class ManufacturersController : Controller
 
         if (ModelState.IsValid)
         {
-            _context.Add(manufacturer);
-            await _context.SaveChangesAsync();
+            context.Add(manufacturer);
+            await context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Countries = _context.Countries.ToList();
+        ViewBag.Countries = context.Countries.ToList();
 
         return View(manufacturer);
     }
@@ -85,13 +78,13 @@ public class ManufacturersController : Controller
             return NotFound();
         }
 
-        var manufacturer = await _context.Manufacturers.FindAsync(id);
+        var manufacturer = await context.Manufacturers.FindAsync(id);
         if (manufacturer == null)
         {
             return NotFound();
         }
 
-        ViewBag.Countries = _context.Countries.ToList();
+        ViewBag.Countries = context.Countries.ToList();
 
         return View(manufacturer);
     }
@@ -106,7 +99,7 @@ public class ManufacturersController : Controller
             return NotFound();
         }
 
-        var country = await _context.Countries.FindAsync(manufacturer.CountryId);
+        var country = await context.Countries.FindAsync(manufacturer.CountryId);
         manufacturer.Country = country!;
 
         ModelState.Clear();
@@ -116,8 +109,8 @@ public class ManufacturersController : Controller
         {
             try
             {
-                _context.Update(manufacturer);
-                await _context.SaveChangesAsync();
+                context.Update(manufacturer);
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -132,7 +125,7 @@ public class ManufacturersController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Countries = _context.Countries.ToList();
+        ViewBag.Countries = context.Countries.ToList();
 
         return View(manufacturer);
     }
@@ -145,7 +138,7 @@ public class ManufacturersController : Controller
             return NotFound();
         }
 
-        var manufacturer = await _context.Manufacturers
+        var manufacturer = await context.Manufacturers
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (manufacturer == null)
@@ -161,7 +154,7 @@ public class ManufacturersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var manufacturer = await _context.Manufacturers.FindAsync(id);
+        var manufacturer = await context.Manufacturers.FindAsync(id);
 
         if (manufacturer == null)
         {
@@ -171,14 +164,14 @@ public class ManufacturersController : Controller
         manufacturer.UpdatedAt = DateTimeOffset.UtcNow;
         manufacturer.DeletedAt = DateTimeOffset.UtcNow;
         
-        _context.Update(manufacturer);
-        await _context.SaveChangesAsync();
+        context.Update(manufacturer);
+        await context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
 
     private bool ManufacturerExists(int id)
     {
-        return _context.Manufacturers.Any(e => e.Id == id);
+        return context.Manufacturers.Any(e => e.Id == id);
     }
 }

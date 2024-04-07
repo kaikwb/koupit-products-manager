@@ -5,19 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace koupit_products_manager.Controllers;
 
-public class CountriesController : Controller
+public class CountriesController(PostgresDbContext context) : Controller
 {
-    private readonly PostgresDbContext _context;
-
-    public CountriesController(PostgresDbContext context)
-    {
-        _context = context;
-    }
-
     // GET: Countries
     public async Task<IActionResult> Index()
     {
-        var countries = await _context.Countries.Select(c => new Country
+        var countries = await context.Countries.Select(c => new Country
         {
             Id = c.Id,
             Name = c.Name,
@@ -40,7 +33,7 @@ public class CountriesController : Controller
             return NotFound();
         }
 
-        var country = await _context.Countries
+        var country = await context.Countries
             .Select(c => new Country
             {
                 Id = c.Id,
@@ -75,8 +68,8 @@ public class CountriesController : Controller
             return View(country);
         }
 
-        _context.Add(country);
-        await _context.SaveChangesAsync();
+        context.Add(country);
+        await context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
@@ -89,7 +82,7 @@ public class CountriesController : Controller
             return NotFound();
         }
 
-        var country = await _context.Countries.FirstOrDefaultAsync(x => x.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(x => x.Id == id);
         if (country == null)
         {
             return NotFound();
@@ -112,8 +105,8 @@ public class CountriesController : Controller
         {
             country.UpdatedAt = DateTimeOffset.UtcNow;
 
-            _context.Update(country);
-            await _context.SaveChangesAsync();
+            context.Update(country);
+            await context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -136,7 +129,7 @@ public class CountriesController : Controller
             return NotFound();
         }
 
-        var country = await _context.Countries.FirstOrDefaultAsync(m => m.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(m => m.Id == id);
         if (country == null)
         {
             return NotFound();
@@ -150,7 +143,7 @@ public class CountriesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var country = await _context.Countries.FirstOrDefaultAsync(x => x.Id == id);
+        var country = await context.Countries.FirstOrDefaultAsync(x => x.Id == id);
 
         if (country == null)
         {
@@ -158,14 +151,14 @@ public class CountriesController : Controller
         }
 
         country.DeletedAt = DateTimeOffset.UtcNow;
-        _context.Update(country);
-        await _context.SaveChangesAsync();
+        context.Update(country);
+        await context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
 
     private bool CountryExists(int id)
     {
-        return _context.Countries.Any(e => e.Id == id);
+        return context.Countries.Any(e => e.Id == id);
     }
 }
