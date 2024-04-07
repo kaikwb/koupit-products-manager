@@ -1,0 +1,29 @@
+@model koupit_products_manager.Models.Country
+
+@{
+    ViewData["Title"] = "Edit Country";
+}
+
+<h2>Country edit</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id"/>
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Code" class="control-label"></label>
+        <input asp-for="Code" class="form-control"/>
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary"/>
+    </div>
+</form>
+
+<p>
+    <a asp-action="Index">Return to country list</a>
+</p>

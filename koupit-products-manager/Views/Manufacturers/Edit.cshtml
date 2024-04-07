@@ -1,0 +1,31 @@
+@model koupit_products_manager.Models.Manufacturer
+
+@{
+    ViewData["Title"] = "Create Manufacturer";
+}
+
+<h2>Edit manufacturer</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CountryId" class="control-label"></label>
+        <select asp-for="CountryId" class="form-control" asp-items="@(new SelectList(ViewBag.Countries, "Id", "Name"))">
+            <option value="">Select a country</option>
+        </select>
+        <span asp-validation-for="CountryId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
+
+<p>
+    <a asp-action="Index">Return to manufacturer list</a>
+</p>

@@ -1,0 +1,6 @@
+﻿services:
+  koupit-products-manager:
+    image: koupit-products-manager
+    build:
+      context: .
+      dockerfile: koupit-products-manager/Dockerfile

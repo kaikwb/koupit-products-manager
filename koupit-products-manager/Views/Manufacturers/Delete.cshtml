@@ -1,0 +1,42 @@
+@model koupit_products_manager.Models.Manufacturer
+
+@{
+    ViewData["Title"] = "Create Manufacturer";
+}
+
+<h2>Delete manufacturer</h2>
+
+<div>
+    <h4>Are you sure you want to delete this manufacturer?</h4>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Id
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Id
+        </dd>
+        <dt class="col-sm-2">
+            UUID
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Uuid
+        </dd>
+        <dt class="col-sm-2">
+            Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Name
+        </dd>
+        <dt class="col-sm-2">
+            Country
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Country.Name
+        </dd>
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Cancel</a>
+    </form>
+</div>

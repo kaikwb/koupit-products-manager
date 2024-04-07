@@ -1,0 +1,43 @@
+@model IEnumerable<koupit_products_manager.Models.Country>
+
+@{
+ViewData["Title"] = "Countries";
+}
+
+<h2>Countries</h2>
+
+<p>
+    <a asp-action="Create">Create new country</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Created at</th>
+        <th>Updated at</th>
+        <th>Deleted at</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var country in Model)
+    {
+        <tr>
+            <td>@country.Id</td>
+            <td>@country.Name</td>
+            <td>@country.Code</td>
+            <td>@country.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(country.UpdatedAt.HasValue ? country.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+            <td>@(country.DeletedAt.HasValue ? country.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@country.Id">Details</a> |
+                <a asp-action="Edit" asp-route-id="@country.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@country.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
