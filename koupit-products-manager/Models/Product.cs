@@ -38,6 +38,6 @@ public class Product
 
     [Column("deleted_at")] public DateTimeOffset? DeletedAt { get; set; }
 
-    public ICollection<Attribute> Attributes { get; set; } = [];
-    // public List<ProductAttribute> ProductAttributes { get; set; } = [];
+    public List<Attribute> Attributes { get; } = [];
+    public List<ProductAttribute> ProductAttributes { get; } = [];
 }

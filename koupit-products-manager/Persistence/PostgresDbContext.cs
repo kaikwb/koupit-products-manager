@@ -35,33 +35,14 @@ public class PostgresDbContext(DbContextOptions<PostgresDbContext> options) : Db
             .HasMany(p => p.Attributes)
             .WithMany(a => a.Products)
             .UsingEntity<ProductAttribute>(
-                j => j
-                    .HasOne(pa => pa.Attribute)
-                    .WithMany()
-                    .HasForeignKey(pa => pa.AttributeId)
-                    .HasPrincipalKey(a => a.Id),
-                j => j
-                    .HasOne(pa => pa.Product)
-                    .WithMany()
-                    .HasForeignKey(pa => pa.ProductId)
-                    .HasPrincipalKey(p => p.Id),
-                j =>
-                {
-                    j.HasKey(pa => new { pa.ProductId, pa.AttributeId });
-                    j.Property(pa => pa.Value).IsRequired();
-                    j.Property(pa => pa.CreatedAt).IsRequired();
-                    j.Property(pa => pa.UpdatedAt);
-                    j.Property(pa => pa.DeletedAt);
-                }
-            );
+                l => l.HasOne(pa => pa.Attribute).WithMany(a => a.ProductAttributes).HasForeignKey(pa => pa.AttributeId),
+                r => r.HasOne(pa => pa.Product).WithMany(p => p.ProductAttributes).HasForeignKey(pa => pa.ProductId));
 
         modelBuilder.Entity<Product>().Navigation(p => p.Manufacturer).AutoInclude();
-        modelBuilder.Entity<Product>().Navigation(p => p.Attributes).AutoInclude();
+        modelBuilder.Entity<Product>().Navigation(p => p.ProductAttributes).AutoInclude();
 
-        // modelBuilder.Entity<Attribute>().Navigation(a => a.Products).AutoInclude();
-
-        // modelBuilder.Entity<ProductAttribute>().Navigation(pa => pa.Product).AutoInclude();
-        // modelBuilder.Entity<ProductAttribute>().Navigation(pa => pa.Attribute).AutoInclude();
+        modelBuilder.Entity<ProductAttribute>().Navigation(pa => pa.Product).AutoInclude();
+        modelBuilder.Entity<ProductAttribute>().Navigation(pa => pa.Attribute).AutoInclude();
 
         base.OnModelCreating(modelBuilder);
     }
