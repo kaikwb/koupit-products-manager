@@ -6,7 +6,7 @@
 
 <h2>Create new product</h2>
 
-<form asp-action="Create">
+<form asp-action="Create" id="productForm">
     <div class="form-group">
         <label asp-for="Name" class="control-label"></label>
         <input asp-for="Name" class="form-control"/>
@@ -29,11 +29,70 @@
         <textarea asp-for="Description" class="form-control"></textarea>
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
+
+    <div id="attributeFields">
+        <table id="attributeTable" class="table">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Data Type</th>
+                <th>Value</th>
+                <th>Unit</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+
+    <button type="button" id="addAttribute" class="btn btn-primary">Add Attribute</button>
+
     <div class="form-group">
         <input type="submit" value="Create" class="btn btn-primary"/>
     </div>
 </form>
 
-<p>
-    <a asp-action="Index">Return to product list</a>
-</p>
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        var attributeCount = 0;
+
+        $("#addAttribute").click(function () {
+            var newRow = `
+                    <tr id="attributeRow_${attributeCount}">
+                        <td>
+                            <select class="form-control attribute-select" name="Attributes[${attributeCount}].Id">
+                                <option value="">Select an attribute</option>
+                                @foreach (var attributeModel in ViewBag.Attributes)
+                                {
+                                    <option value="@attributeModel.Id" data-datatype="@attributeModel.DataType" data-unit="@attributeModel.Unit">@attributeModel.PrettyName</option>
+                                }
+                            </select>
+                        </td>
+                        <td><input type="text" class="form-control" name="Attributes[${attributeCount}].DataType" readonly /></td>
+                        <td><input type="text" class="form-control" name="Attributes[${attributeCount}].Value" /></td>
+                        <td><input type="text" class="form-control" name="Attributes[${attributeCount}].Unit" readonly /></td>
+                        <td><button type="button" class="btn btn-danger remove-attribute" data-attribute-row="attributeRow_${attributeCount}">Remove</button></td>
+                    </tr>`;
+
+            $("#attributeTable tbody").append(newRow);
+            attributeCount++;
+        });
+
+        $("#attributeTable").on("click", ".remove-attribute", function () {
+            var rowId = $(this).data("attribute-row");
+            $("#" + rowId).remove();
+        });
+
+        $("#attributeTable").on("change", ".attribute-select", function () {
+            var dataType = $(this).find("option:selected").data("datatype");
+            var unit = $(this).find("option:selected").data("unit");
+            var rowId = $(this).closest("tr").attr("id");
+            $("#" + rowId + " input[name$='.DataType']").val(dataType);
+            $("#" + rowId + " input[name$='.Unit']").val(unit);
+        });
+    });
+</script>
+}

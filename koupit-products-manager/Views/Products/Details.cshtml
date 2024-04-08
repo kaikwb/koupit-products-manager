@@ -65,6 +65,38 @@
             @(Model.DeletedAt.HasValue ? Model.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")
         </dd>
     </dl>
+
+    @if (Model.ProductAttributes.Any())
+    {
+        <h4>Product Attributes</h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Pretty Name</th>
+                <th>Unit</th>
+                <th>Data Type</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var productAttribute in Model.ProductAttributes)
+            {
+                <tr>
+                    <td>@productAttribute.Attribute.Name</td>
+                    <td>@productAttribute.Attribute.PrettyName</td>
+                    <td>@productAttribute.Attribute.Unit</td>
+                    <td>@productAttribute.Attribute.DataType</td>
+                    <td>@productAttribute.Value</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No attributes found for this product.</p>
+    }
 </div>
 
 <p>

@@ -2,6 +2,7 @@ using koupit_products_manager.Models;
 using koupit_products_manager.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Attribute = koupit_products_manager.Models.Attribute;
 
 namespace koupit_products_manager.Controllers;
 
@@ -10,10 +11,7 @@ public class ProductsController(PostgresDbContext context) : Controller
     // GET: Products
     public async Task<IActionResult> Index()
     {
-        var products = await context.Products
-            .Where(p => p.DeletedAt == null)
-            .ToListAsync();
-        products.Sort((a, b) => a.Id.CompareTo(b.Id));
+        var products = await GetProducts();
 
         return View(products);
     }
@@ -38,14 +36,10 @@ public class ProductsController(PostgresDbContext context) : Controller
     }
 
     // GET: Products/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        var manufacturers = context.Manufacturers
-            .Where(m => m.DeletedAt == null)
-            .ToList();
-        manufacturers.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.InvariantCultureIgnoreCase));
-
-        ViewBag.Manufacturers = manufacturers;
+        ViewBag.Manufacturers = await GetManufacturers();
+        ViewBag.Attributes = await GetAttributes();
 
         return View();
     }
@@ -55,9 +49,7 @@ public class ProductsController(PostgresDbContext context) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Name,ManufacturerId,PartNumber,Description")] Product product)
     {
-        var manufacturer = await context.Manufacturers
-            .FirstOrDefaultAsync(m => m.Id == product.ManufacturerId && m.DeletedAt == null);
-        product.Manufacturer = manufacturer!;
+        product.Manufacturer = (await GetManufacturer(product.ManufacturerId))!;
 
         ModelState.Clear();
         TryValidateModel(product);
@@ -70,9 +62,7 @@ public class ProductsController(PostgresDbContext context) : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Manufacturers = context.Manufacturers
-            .Where(m => m.DeletedAt == null)
-            .ToList();
+        ViewBag.Manufacturers = GetManufacturers();
 
         return View(product);
     }
@@ -86,14 +76,12 @@ public class ProductsController(PostgresDbContext context) : Controller
         }
 
         var product = await context.Products.FindAsync(id);
-        if (product == null || product.DeletedAt != null)
+        if (product is not { DeletedAt: null })
         {
             return NotFound();
         }
 
-        ViewBag.Manufacturers = context.Manufacturers
-            .Where(m => m.DeletedAt == null)
-            .ToList();
+        ViewBag.Manufacturers = GetManufacturers();
 
         return View(product);
     }
@@ -109,10 +97,8 @@ public class ProductsController(PostgresDbContext context) : Controller
         {
             return NotFound();
         }
-
-        var manufacturer = await context.Manufacturers
-            .FirstOrDefaultAsync(m => m.Id == product.ManufacturerId && m.DeletedAt == null);
-        product.Manufacturer = manufacturer!;
+        
+        product.Manufacturer = (await GetManufacturer(product.ManufacturerId))!;
 
         ModelState.Clear();
         TryValidateModel(product);
@@ -138,9 +124,7 @@ public class ProductsController(PostgresDbContext context) : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Manufacturers = context.Manufacturers
-            .Where(m => m.DeletedAt == null)
-            .ToList();
+        ViewBag.Manufacturers = GetManufacturers();
 
         return View(product);
     }
@@ -187,5 +171,38 @@ public class ProductsController(PostgresDbContext context) : Controller
     private bool ProductExists(int id)
     {
         return context.Products.Any(e => e.Id == id && e.DeletedAt == null);
+    }
+
+    private async Task<List<Manufacturer>> GetManufacturers()
+    {
+        var manufacturers = await context.Manufacturers
+            .Where(m => m.DeletedAt == null)
+            .ToListAsync();
+        manufacturers.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.InvariantCultureIgnoreCase));
+
+        return manufacturers;
+    }
+    
+    private async Task<Manufacturer?> GetManufacturer(int id)
+    {
+        return await context.Manufacturers
+            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
+    }
+    
+    private async Task<List<Attribute>> GetAttributes()
+    {
+        return await context.Attributes
+            .Where(a => a.DeletedAt == null)
+            .ToListAsync();
+    }
+    
+    private async Task<List<Product>> GetProducts()
+    {
+        var products = await context.Products
+            .Where(p => p.DeletedAt == null)
+            .ToListAsync();
+        products.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.InvariantCultureIgnoreCase));
+
+        return products;
     }
 }
