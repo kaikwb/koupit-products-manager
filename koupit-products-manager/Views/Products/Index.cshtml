@@ -1,0 +1,47 @@
+@model IEnumerable<Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h2>Products</h2>
+
+<p>
+    <a asp-action="Create">Create new product</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Manufacturer</th>
+        <th>Part Number</th>
+        <th>Description</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+        <th>Deleted At</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var product in Model)
+    {
+        <tr>
+            <td>@product.Id</td>
+            <td>@product.Name</td>
+            <td>@product.Manufacturer.Name</td>
+            <td>@product.PartNumber</td>
+            <td>@(string.IsNullOrEmpty(product.Description) ? "-" : product.Description)</td>
+            <td>@product.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@(product.UpdatedAt.HasValue ? product.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+            <td>@(product.DeletedAt.HasValue ? product.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@product.Id">Details</a> |
+                <a asp-action="Edit" asp-route-id="@product.Id">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@product.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

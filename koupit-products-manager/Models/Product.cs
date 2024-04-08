@@ -1,19 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using NpgsqlTypes;
 
 namespace koupit_products_manager.Models;
 
-public enum AttributeDataType
-{
-    [PgName("string")] String,
-    [PgName("integer")] Integer,
-    [PgName("float")] Float,
-    [PgName("boolean")] Boolean,
-}
-
-[Table("attributes")]
-public class Attribute
+[Table("products")]
+public class Product
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -29,18 +20,17 @@ public class Attribute
     [Column("name", TypeName = "varchar(100)")]
     public required string Name { get; set; }
 
-    [Required]
-    [MaxLength(100)]
-    [Column("pretty_name", TypeName = "varchar(100)")]
-    public required string PrettyName { get; set; }
+    [Column("manufacturer_id")] public int ManufacturerId { get; set; }
 
-    [MaxLength(100)]
-    [Column("unit", TypeName = "varchar(100)")]
-    public string? Unit { get; set; }
+    [ForeignKey("ManufacturerId")] public Manufacturer Manufacturer { get; set; } = null!;
 
     [Required]
-    [Column("data_type", TypeName = "attribute_data_type")]
-    public AttributeDataType DataType { get; set; }
+    [MaxLength(100)]
+    [Column("part_number", TypeName = "varchar(100)")]
+    public required string PartNumber { get; set; }
+
+    [Column("description", TypeName = "text")]
+    public string? Description { get; set; }
 
     [Required] [Column("created_at")] public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
@@ -48,6 +38,6 @@ public class Attribute
 
     [Column("deleted_at")] public DateTimeOffset? DeletedAt { get; set; }
 
-    public ICollection<Product> Products { get; set; } = [];
+    public ICollection<Attribute> Attributes { get; set; } = [];
     // public List<ProductAttribute> ProductAttributes { get; set; } = [];
 }

@@ -5,19 +5,12 @@ using Attribute = koupit_products_manager.Models.Attribute;
 
 namespace koupit_products_manager.Controllers;
 
-public class AttributesController : Controller
+public class AttributesController(PostgresDbContext context) : Controller
 {
-    private readonly PostgresDbContext _context;
-
-    public AttributesController(PostgresDbContext context)
-    {
-        _context = context;
-    }
-
     // GET: Attributes
     public async Task<IActionResult> Index()
     {
-        var attributes = await _context.Attributes
+        var attributes = await context.Attributes
             .Where(a => a.DeletedAt == null)
             .ToListAsync();
 
@@ -34,7 +27,7 @@ public class AttributesController : Controller
             return NotFound();
         }
 
-        var attribute = await _context.Attributes
+        var attribute = await context.Attributes
             .Where(a => a.DeletedAt == null)
             .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -61,9 +54,9 @@ public class AttributesController : Controller
         {
             return View(attribute);
         }
-        
-        _context.Add(attribute);
-        await _context.SaveChangesAsync();
+
+        context.Add(attribute);
+        await context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
@@ -76,7 +69,7 @@ public class AttributesController : Controller
             return NotFound();
         }
 
-        var attribute = await _context.Attributes.FirstOrDefaultAsync(a => a.Id == id && a.DeletedAt == null);
+        var attribute = await context.Attributes.FirstOrDefaultAsync(a => a.Id == id && a.DeletedAt == null);
         if (attribute == null)
         {
             return NotFound();
@@ -100,8 +93,8 @@ public class AttributesController : Controller
         try
         {
             attribute.UpdatedAt = DateTimeOffset.UtcNow;
-            _context.Update(attribute);
-            await _context.SaveChangesAsync();
+            context.Update(attribute);
+            await context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -124,7 +117,7 @@ public class AttributesController : Controller
             return NotFound();
         }
 
-        var attribute = await _context.Attributes.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
+        var attribute = await context.Attributes.FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
         if (attribute == null)
         {
             return NotFound();
@@ -138,7 +131,7 @@ public class AttributesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var attribute = await _context.Attributes.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+        var attribute = await context.Attributes.FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
         if (attribute == null)
         {
@@ -147,14 +140,14 @@ public class AttributesController : Controller
 
         attribute.DeletedAt = DateTimeOffset.UtcNow;
         attribute.UpdatedAt = DateTimeOffset.UtcNow;
-        _context.Update(attribute);
-        await _context.SaveChangesAsync();
+        context.Update(attribute);
+        await context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
     }
 
     private bool AttributeExists(int id)
     {
-        return _context.Attributes.Any(e => e.Id == id && e.DeletedAt == null);
+        return context.Attributes.Any(e => e.Id == id && e.DeletedAt == null);
     }
 }
