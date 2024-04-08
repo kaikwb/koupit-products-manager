@@ -1,0 +1,66 @@
+@model koupit_products_manager.Models.Attribute
+
+@{
+    ViewData["Title"] = "Attribute Details";
+}
+
+<h2>Attribute details</h2>
+
+<div>
+    <h4>Attribute</h4>
+    <hr/>
+    <dl class="row">
+        <dt class="col-sm-2">
+            Id
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Id
+        </dd>
+        <dt class="col-sm-2">
+            Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Name
+        </dd>
+        <dt class="col-sm-2">
+            Pretty Name
+        </dt>
+        <dd class="col-sm-10">
+            @Model.PrettyName
+        </dd>
+        <dt class="col-sm-2">
+            Unit
+        </dt>
+        <dd class="col-sm-10">
+            @(string.IsNullOrEmpty(Model.Unit) ? "-" : Model.Unit)
+        </dd>
+        <dt class="col-sm-2">
+            Data Type
+        </dt>
+        <dd class="col-sm-10">
+            @Model.DataType
+        </dd>
+        <dt class="col-sm-2">
+            Created at
+        </dt>
+        <dd class="col-sm-10">
+            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+        </dd>
+        <dt class="col-sm-2">
+            Updated at
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+        </dd>
+        <dt class="col-sm-2">
+            Deleted at
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.DeletedAt.HasValue ? Model.DeletedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")
+        </dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Index">Return to attribute list</a>
+</p>

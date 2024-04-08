@@ -1,0 +1,52 @@
+@model koupit_products_manager.Models.Attribute
+
+@{
+    ViewData["Title"] = "Edit Attribute";
+}
+
+<h2>Attribute edit</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id"/>
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PrettyName" class="control-label"></label>
+        <input asp-for="PrettyName" class="form-control"/>
+        <span asp-validation-for="PrettyName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Unit" class="control-label"></label>
+        <input asp-for="Unit" class="form-control"/>
+        <span asp-validation-for="Unit" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DataType" class="control-label"></label>
+        <select asp-for="DataType" class="form-control">
+            @{
+                var dataTypes = Enum.GetValues(typeof(AttributeDataType))
+                    .Cast<AttributeDataType>()
+                    .OrderBy(d => d.ToString())
+                    .ToList();
+
+                foreach (var dataType in dataTypes)
+                {
+                    var selected = Model.DataType.Equals(dataType) ? "selected" : null;
+                    <option value="@dataType" selected="@selected">@dataType</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="DataType" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary"/>
+    </div>
+</form>
+
+<p>
+    <a asp-action="Index">Return to attribute list</a>
+</p>

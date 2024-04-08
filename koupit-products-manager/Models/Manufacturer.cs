@@ -23,9 +23,8 @@ public class Manufacturer
     [Display(Name = "Country")]
     [Column("country_id")]
     public int CountryId { get; set; }
-    
-    [ForeignKey("CountryId")]
-    public Country Country { get; set; } = null!;
+
+    [ForeignKey("CountryId")] public Country Country { get; set; } = null!;
 
     [Required] [Column("created_at")] public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
