@@ -4,6 +4,12 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+ENV DB_HOST=localhost
+ENV DB_PORT=5432
+ENV DB_NAME=koupit-products
+ENV DB_USER=koupit-products-user
+ENV DB_PASS=koupit-products-password
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
